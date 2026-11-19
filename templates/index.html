@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Router Hub</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 45px 25px;
+        }
+
+        .wrapper {
+            max-width: 1050px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Header Section */
+        .top-header {
+            margin-bottom: 32px;
+        }
+
+        .brand-title {
+            font-size: 2.3rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .brand-title .badge {
+            background: #ff9000;
+            color: #000000;
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
+
+        .subtitle {
+            color: #9e9e9e;
+            font-size: 0.95rem;
+            max-width: 520px;
+            line-height: 1.4;
+        }
+
+        /* 2-Column Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Left Sidebar: Router Hardware Card */
+        .router-card {
+            background: #161616;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .chassis-box {
+            background: linear-gradient(145deg, #1f1f1f, #0d0d0d);
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+
+        .chassis-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chassis-top strong {
+            font-size: 1.1rem;
+            color: #ff9000;
+            font-weight: 800;
+        }
+
+        .chassis-top span {
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #a3a3a3;
+        }
+
+        .ports-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .port {
+            background: #121212;
+            border: 1px solid #2e2e2e;
+            border-radius: 6px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .led {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #ff9000;
+            box-shadow: 0 0 8px #ff9000, 0 0 14px rgba(255, 144, 0, 0.5);
+            animation: blink 2.2s infinite ease-in-out;
+        }
+
+        .port:nth-child(2) .led { animation-delay: 0.4s; }
+        .port:nth-child(3) .led { animation-delay: 0.8s; }
+        .port:nth-child(4) .led { animation-delay: 1.2s; }
+
+        /* Specs List */
+        .specs-list {
+            margin-bottom: 16px;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px solid #242424;
+            font-size: 0.86rem;
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .spec-row span:first-child {
+            color: #8c8c8c;
+        }
+
+        .spec-row span:last-child {
+            font-family: monospace;
+            color: #f3f3f3;
+            font-weight: 600;
+        }
+
+        /* Command Pills */
+        .cmd-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-bottom: 18px;
+        }
+
+        .pill {
+            background: #202020;
+            border: 1px solid #2e2e2e;
+            color: #d4d4d4;
+            font-family: monospace;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            border-radius: 7px;
+        }
+
+        /* Action Button */
+        .run-btn {
+            width: 100%;
+            background: #ff9000;
+            color: #000000;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 144, 0, 0.25);
+        }
+
+        .run-btn:hover {
+            background: #ffa31a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 144, 0, 0.4);
+        }
+
+        .run-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Right Column: Output Accordion Bars */
+        .outputs-col {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .error-banner {
+            background: #2b0b0b;
+            border: 1px solid #ff4444;
+            color: #ff9999;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            background: #141414;
+            border: 1px dashed #2e2e2e;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            color: #757575;
+            font-size: 0.92rem;
+        }
+
+        .cmd-bar {
+            background: #141414;
+            border: 1px solid #292929;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.25s ease;
+            animation: slideIn 0.35s ease forwards;
+        }
+
+        .cmd-bar:hover {
+            border-color: #ff9000;
+        }
+
+        .cmd-bar-header {
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            background: #181818;
+            transition: background 0.2s ease;
+        }
+
+        .cmd-bar-header:hover {
+            background: #202020;
+        }
+
+        .cmd-left {
+            font-family: monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .cmd-left .prompt {
+            color: #ff9000;
+            margin-right: 6px;
+        }
+
+        .cmd-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.82rem;
+            color: #8c8c8c;
+            font-family: monospace;
+        }
+
+        .chevron {
+            transition: transform 0.25s ease;
+            color: #ff9000;
+            font-weight: bold;
+        }
+
+        .cmd-bar.open .chevron {
+            transform: rotate(90deg);
+        }
+
+        .cmd-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #0d0d0d;
+        }
+
+        .cmd-bar.open .cmd-content {
+            max-height: 500px;
+            overflow-y: auto;
+            border-top: 1px solid #262626;
+        }
+
+        .content-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            padding: 8px 14px 0 14px;
+        }
+
+        .copy-btn {
+            background: #222222;
+            color: #ff9000;
+            border: 1px solid #333333;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #ff9000;
+            color: #000000;
+        }
+
+        pre {
+            padding: 12px 18px 18px 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #e5e5e5;
+            white-space: pre-wrap;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(12px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="top-header">
+            <div class="brand-title">
+                <span>Router</span><span class="badge">Hub</span>
+            </div>
+            <p class="subtitle">
+                Connect to R1 over Telnet, run the show commands, and inspect each output below.
+            </p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel -->
+            <div class="router-card">
+                <div class="chassis-box">
+                    <div class="chassis-top">
+                        <strong>R1</strong>
+                        <span>192.168.10.218:32770</span>
+                    </div>
+                    <div class="ports-row">
+                        <div class="port"><div class="led"></div></div>
+                        <div class="port"><div class="led"></div></div>
+                        <div class="port"><div class="led"></div></div>
+                        <div class="port"><div class="led"></div></div>
+                    </div>
+                </div>
+
+                <div class="specs-list">
+                    <div class="spec-row">
+                        <span>Address</span>
+                        <span>192.168.10.218</span>
+                    </div>
+                    <div class="spec-row">
+                        <span>Port</span>
+                        <span>32770</span>
+                    </div>
+                    <div class="spec-row">
+                        <span>Protocol</span>
+                        <span>Telnet</span>
+                    </div>
+                    <div class="spec-row">
+                        <span>Platform</span>
+                        <span>Cisco IOS</span>
+                    </div>
+                </div>
+
+                <div class="cmd-pills">
+                    <div class="pill">show version</div>
+                    <div class="pill">show ip interface brief</div>
+                    <div class="pill">show running-config</div>
+                </div>
+
+                <form method="POST" action="/" onsubmit="loadingBtn()">
+                    <button type="submit" class="run-btn" id="runBtn">Run commands</button>
+                </form>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="outputs-col">
+                {% if error %}
+                <div class="error-banner">
+                    <strong>Connection Error:</strong> {{ error }}
+                </div>
+                {% endif %}
+
+                {% if results %}
+                    {% for cmd, output in results.items() %}
+                    <div class="cmd-bar">
+                        <div class="cmd-bar-header" onclick="this.parentElement.classList.toggle('open')">
+                            <div class="cmd-left">
+                                <span class="prompt">R1#</span>{{ cmd }}
+                            </div>
+                            <div class="cmd-right">
+                                <span>{{ output.splitlines()|length }} lines</span>
+                                <span class="chevron">&gt;</span>
+                            </div>
+                        </div>
+                        <div class="cmd-content">
+                            <div class="content-toolbar">
+                                <button type="button" class="copy-btn" onclick="copyText(this)">Copy output</button>
+                            </div>
+                            <pre>{{ output }}</pre>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    {% if not error %}
+                    <div class="empty-state">
+                        Click <strong>Run commands</strong> on the left panel to fetch live outputs from R1.
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadingBtn() {
+            const btn = document.getElementById('runBtn');
+            btn.innerText = 'Connecting to R1...';
+            btn.style.opacity = '0.75';
+        }
+
+        function copyText(btn) {
+            const text = btn.closest('.cmd-content').querySelector('pre').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy output', 1500);
+            });
+        }
+    </script>
+</body>
+</html>
